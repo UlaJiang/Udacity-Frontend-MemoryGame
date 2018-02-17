@@ -1,14 +1,37 @@
 /*
  * 创建一个包含所有卡片的数组
  */
-function Card (picture) {
+/*function Card (picture) {
     this.picture = picture;
 }
 var cardArray = [new Card("fa fa-diamond"), new Card("fa fa-paper-plane-o"), new Card("fa fa-cube"), 
 new Card("fa fa-anchor"), new Card("fa fa-bolt"), new Card("fa fa-cube"), new Card("fa fa-anchor"), 
 new Card("fa fa-leaf"), new Card("fa fa-bicycle"), new Card("fa fa-diamond"), new Card("fa fa-bomb"), 
 new Card("fa fa-leaf"), new Card("fa fa-bomb"), new Card("fa fa-bolt"), new Card("fa fa-bicycle"),
-new Card("fa fa-paper-plane-o"),];
+new Card("fa fa-paper-plane-o"),];*/
+
+
+//由于每种卡片前缀都是 fa ，那咱们就可以将其直接封装到 #5行 的picture里
+function Card(picture) {
+    this.picture = "fa " + picture; 
+}
+//直接提取8种卡片的类名字符串，放进一个叫做 picArr 的数组中
+var picArr = [
+"fa-diamond",
+"fa-paper-plane-o",
+"fa-cube",
+"fa-anchor",
+"fa-bolt",
+"fa-leaf",
+"fa-bicycle",
+"fa-bomb"
+];  
+//由于每种卡片都是成对出现，我们可以利用 concat 方法 double picArr 数组
+picArr = picArr.concat(picArr); 
+//根据 picArr 实例化 Card ，将返回的数组赋值给 cardArray
+var cardArray = picArr.map(function(pic) {
+  return new Card(pic); 
+});
 
 
 /*
@@ -49,23 +72,35 @@ function shuffle(array) {
  var moves = 0; //记录一局有多少个moves
  var numOfBox = document.getElementById("deck").getElementsByTagName("li");
  var star = document.getElementById("stars").getElementsByTagName("li");
- 
+ //var isFirstClick = true;
+ var initialTime;
+ var endTime;
+ var hour;
+ var minute;
+ var second;
+
  //初始化整个游戏格
  function inital(){
     //在restart时要重置moves和open[]
     open = [ ];
     moves = 0;
+    
+    //var isFirstClick = false;
+    initialTime = new Date();
+    
     document.getElementById("moves").innerHTML = moves;
 
     for (var i = 0; i < star.length; i++) {
         star[i].innerHTML = "<i class='fa fa-star'></i>";
     }
-                                        
+
+    shuffle(cardArray);                                        
     for (var i = 0; i < numOfBox.length; i++) {
         numOfBox[i].className = "card";
         numOfBox[i].innerHTML = "<i class='" + cardArray[i].picture + "'></i>";
     }
-    shuffle(cardArray);
+    modal.style.display = "none";
+    //shuffle(cardArray);
 
 }
 
@@ -91,7 +126,7 @@ function click(){
                     return;
                 }
             }
-             
+
         }(i);
     }
 
@@ -132,31 +167,78 @@ function isMatched(){
 
 }
 
+
 //计数试图配对的moves数量
 function numOfMoves(){
-     if (open.length % 2 == 0){
-                        moves += 1;
-                        document.getElementById("moves").innerHTML = moves;
-    }
+ if (open.length % 2 == 0){
+    moves += 1;
+    document.getElementById("moves").innerHTML = moves;
+}
 }
 
+var modal = document.getElementById("myModal");
 function succed(){
-    if (open.length == 16)
-        setTimeout(function(){
-            alert("you win with " + moves +" moves!");
-        },500);
+    if (open.length == 16){
+        endTime = new Date();
+        var timeInterval =  Math.round((endTime - initialTime)/1000);
+        
+        //count time spent
+        function timePeriod(){
+            hour = Math.floor(timeInterval / 3600)
+            minute = Math.floor(timeInterval / 60);
+            second = timeInterval % 60;
+            return hour + ":" + minute + ":" + second;
+        }
+
+        //游戏结束时跳出提示框
+        function modalShow(){
+            modal.style.display = "block";
+            document.getElementById("modal").innerHTML = "Congratulations! You win with " + moves
+            + " moves. The time you spent was " + timePeriod() + ". Do your star level is " + showStar() + ". Do you want to play once more?";
+            document.getElementById("resetButtonYes").onclick = function() {
+                inital();
+                modal.style.display = "none";
+            }
+            document.getElementById("resetButtonNo").onclick = function() {
+                modal.style.display = "none";
+            }
+        }
+
+    }
+
+    setTimeout(modalShow,500);
 }
 
 //根据moves多少显示星级
 var star = document.getElementById("stars").getElementsByTagName("li");
 function starNum(){
-    if (moves > 10 && moves < 15){
-         star[2].innerHTML = "<i class='fa fa-star-o'></i>";
-     }
-     else if (moves >=15 && moves < 20){
+    if (moves > 10 && moves < 18){
+     star[2].innerHTML = "<i class='fa fa-star-o'></i>";
+    }
+    else if (moves >=18 && moves < 20){
         star[1].innerHTML = "<i class='fa fa-star-o'></i>";     
     }
 }
+
+//在游戏完成后在弹框里显示出星级
+function showStar(){
+    var finalStar = "";
+    for (var i = 0; i < star.length; i++) {
+        finalStar += star[i].innerHTML;
+    }
+    return finalStar;
+}
+
+//count用户在游戏结束时有几颗星，但是我还是选择直接显示星星图案而不是数字
+// function showStarNum(){
+//     var starInModal =  0;
+//      for (var i = 0; i < star.length; i++){
+//          if (star[i].innerHTML == '<i class="fa fa-star"></i>'){
+//             starInModal += 1;
+//          }
+//      }
+//      return starInModal;
+// }
 
 window.onload = function () {
     inital();
