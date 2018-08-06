@@ -1,5 +1,7 @@
 # Use HTML, CSS and Javascript to realise a webpage game.
 
+![alt text](https://s3-ap-southeast-2.amazonaws.com/test-avatar/mg.png)
+
 
 # 记忆游戏项目
 
